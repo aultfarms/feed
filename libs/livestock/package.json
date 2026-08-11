@@ -22,6 +22,7 @@
     "dev:testcafe": "testcafe --live --config-file=.testcafe.js",
     "dev": "yarn run build:tsc && concurrently \"yarn run dev:tsc\" \"yarn run dev:rollup\"",
     "test:testcafe": "testcafe --config-file='.testcafe.js'",
+    "test:unit": "yarn build:tsc && node --enable-source-maps dist/test/unit.js",
     "test": "live-server --port=8080 --host=localhost --wait=1000 --watch=dist/index.mjs,dist/test/index.mjs --open=test/index.html",
     "clean": "rm -rf dist"
   },

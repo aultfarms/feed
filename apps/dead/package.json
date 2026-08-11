@@ -1,17 +1,45 @@
 {
   "name": "dead",
   "homepage": "https://aultfarms.github.io/dead/",
-  "version": "1.1.1",
+  "version": "2.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "predeploy": "react-scripts build",
-    "deploy": "gh-pages -d build"
+    "dev": "vite",
+    "build:libs": "yarn workspace @aultfarms/trello build && yarn workspace @aultfarms/livestock build",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "predeploy": "yarn build:libs && yarn build",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "@aultfarms/livestock": "workspace:^",
+    "@aultfarms/trello": "workspace:^",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.15.10",
+    "chart.js": "^4.2.1",
+    "gh-pages": "^6.1.1",
+    "mobx": "^6.12.0",
+    "mobx-react-lite": "^4.0.5",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet-async": "^2.0.4"
   },
   "devDependencies": {
-    "@yarnpkg/sdks": "^3.0.0-rc.42"
+    "@types/gh-pages": "^6",
+    "@types/react": "^18.2.56",
+    "@types/react-dom": "^18.2.19",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.4"
   }
 }

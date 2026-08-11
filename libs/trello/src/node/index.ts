@@ -1,5 +1,7 @@
 import Trello from 'trello';
 import { readFile } from 'fs/promises';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import json5 from 'json5';
 import type { TrelloRequestParams, TrelloRESTFunction, TrelloRequestFunction, TrelloRequestResponse } from '../types.js';
 import debug from 'debug';
@@ -13,7 +15,7 @@ let client: Trello | null = null;
 async function waitUntilLoaded(): Promise<void> {
   if (client) return;
   const token = json5.parse(
-    (await readFile('/Users/aultac/.trello/token.js'))
+    (await readFile(join(homedir(), '.trello', 'token.js')))
     .toString()
     .replace(/module\.exports += +/,'')
     .replace(';','')

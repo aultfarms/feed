@@ -1,8 +1,14 @@
-import dayjs from 'dayjs';
-import debug from 'debug';
-import type { TagRange, Tag, IncomingRecord, LivestockRecords } from './types.js';
+import type {
+  DeadRecord,
+  IncomingRecord,
+  LivestockIndexes,
+  LivestockRecords,
+  Tag,
+  TagGroupIndex,
+  TagRange,
+} from './types.js';
 
-const warn = debug('af/livestock#util:warn');
+const warn = (..._args: unknown[]) => undefined;
 //-------------------------------------------------------------
 // Tag Helpers
 //-------------------------------------------------------------
@@ -21,6 +27,44 @@ export function rangeContainsTag(r: TagRange, tag: Tag): boolean {
 export function groupContainsTag(group: IncomingRecord, tag: Tag): boolean {
   return !!group.tags?.find(r => rangeContainsTag(r,tag));
 };
+export function tagKey(tag: Tag): string {
+  return `${tag.color.trim().toUpperCase()}${tag.number}`;
+}
+
+export function sameTag(left: Tag, right: Tag): boolean {
+  return left.number === right.number
+    && left.color.trim().toUpperCase() === right.color.trim().toUpperCase();
+}
+
+export function buildTagGroupIndex(groups: IncomingRecord[]): TagGroupIndex {
+  const index: TagGroupIndex = {};
+  for (const group of groups) {
+    for (const range of group.tags || []) {
+      for (let number = range.start.number; number <= range.end.number; number += 1) {
+        const key = tagKey({ color: range.start.color, number });
+        if (!index[key]) index[key] = [];
+        index[key]!.push(group);
+      }
+    }
+  }
+  for (const candidates of Object.values(index)) {
+    candidates.sort((left, right) => left.date.localeCompare(right.date));
+  }
+  return index;
+}
+
+export function groupForTagInIndex(
+  index: TagGroupIndex,
+  groupsByName: { [groupname: string]: IncomingRecord },
+  tag: Tag,
+  asOfDateString?: string,
+): IncomingRecord | false {
+  if (tag.groupname) return groupsByName[tag.groupname] || false;
+  const candidates = index[tagKey(tag)] || [];
+  const asOfDate = asOfDateString || '9999-12-31';
+  const eligible = candidates.filter(group => group.date <= asOfDate);
+  return eligible[eligible.length - 1] || false;
+}
 
 
 // groupForTag has to deal with historic repeated tag color/number
@@ -54,9 +98,9 @@ export function groupForTag(
   const allfound = groups.filter(g => groupContainsTag(g,tag));
   // if none, return false:
   if (!allfound || allfound.length < 1) return false;
-  const asOfDate = asOfDateString ? dayjs(asOfDateString, 'YYYY-MM-DD') : dayjs();
+  const asOfDate = asOfDateString || new Date().toISOString().slice(0, 10);
 
-  const filteredToDate = allfound.filter(g => !dayjs(g.date,'YYYY-MM-DD').isAfter(asOfDate)); // !isAfter = equal or before
+  const filteredToDate = allfound.filter(g => g.date <= asOfDate);
   if (!filteredToDate || filteredToDate.length < 1) {
     warn('WARNING: groupForTag: found multiple possible groups (',allfound,') for tag (',tag,'), but after filtering for date (',asOfDate,') there were none left!');
     return false;
@@ -67,6 +111,80 @@ export function groupForTag(
   // Need to take the newest one that is prior to the reference date
   return filteredToDate[filteredToDate.length-1] || false;
 };
+
+export function buildLivestockIndexes(records: LivestockRecords): LivestockIndexes {
+  const groupsByName: { [groupname: string]: IncomingRecord } = {};
+  for (const group of records.incoming.records) groupsByName[group.groupname] = group;
+  const groupsByTag = buildTagGroupIndex(records.incoming.records);
+  const indexes: LivestockIndexes = {
+    groupsByName,
+    groupsByTag,
+    treatmentsByTag: {},
+    deathsByTag: {},
+    unmatchedTreatments: [],
+    unmatchedDeaths: [],
+  };
+
+  for (const record of records.treatments.records) {
+    for (const tag of record.tags) {
+      const group = tag.color.toUpperCase() === 'NOTAG'
+        ? false
+        : groupForTagInIndex(groupsByTag, groupsByName, tag, record.date);
+      const indexed = { record, tag, group };
+      const key = tagKey(tag);
+      if (!indexes.treatmentsByTag[key]) indexes.treatmentsByTag[key] = [];
+      indexes.treatmentsByTag[key]!.push(indexed);
+      if (!group) indexes.unmatchedTreatments.push(indexed);
+    }
+  }
+
+  for (const record of records.dead.records) {
+    for (const tag of record.tags) {
+      const group = tag.color.toUpperCase() === 'NOTAG'
+        ? false
+        : groupForTagInIndex(groupsByTag, groupsByName, tag, record.date);
+      const indexed = { record, tag, group };
+      const key = tagKey(tag);
+      if (!indexes.deathsByTag[key]) indexes.deathsByTag[key] = [];
+      indexes.deathsByTag[key]!.push(indexed);
+      if (!group) indexes.unmatchedDeaths.push(indexed);
+    }
+  }
+  return indexes;
+}
+
+export type DuplicateDeath = {
+  record: DeadRecord;
+  tag: Tag;
+  daysApart: number;
+};
+
+function dateAsUtcDays(date: string): number {
+  const [year = 0, month = 1, day = 1] = date.split('-').map(Number);
+  return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
+}
+
+export function findDuplicateDeath(
+  records: DeadRecord[],
+  tag: Tag,
+  date: string,
+  options: { windowDays?: number; excludeCardId?: string } = {},
+): DuplicateDeath | false {
+  // NOTAG is an explicit statement that the animal cannot be identified.
+  // Repeated NOTAG values can represent different animals and must not be
+  // treated as the same identity by the duplicate guard.
+  if (tag.color.trim().toUpperCase() === 'NOTAG') return false;
+  const windowDays = options.windowDays ?? 14;
+  const targetDay = dateAsUtcDays(date);
+  for (const record of records) {
+    if (options.excludeCardId && record.id === options.excludeCardId) continue;
+    const matchingTag = record.tags.find(candidate => sameTag(candidate, tag));
+    if (!matchingTag) continue;
+    const daysApart = Math.abs(dateAsUtcDays(record.date) - targetDay);
+    if (daysApart <= windowDays) return { record, tag: matchingTag, daysApart };
+  }
+  return false;
+}
 
 export function tagStrToObj(str:string): Tag | null {
   str = str.trim();

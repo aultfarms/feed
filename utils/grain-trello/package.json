@@ -1,27 +1,34 @@
 {
-  "name": "grain-trello",
+  "name": "@aultfarms/grain-trello",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Interactively report monthly and overall Grain Hauling totals from Trello",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": "dist/index.js",
+  "engines": {
+    "node": ">=20.12"
+  },
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:libs": "yarn workspace @aultfarms/trello build && yarn workspace @aultfarms/google build && yarn workspace @aultfarms/trucking build",
+    "build": "tsc -b",
+    "build:all": "yarn run build:libs && yarn run build",
+    "start": "yarn run build:all && node --enable-source-maps dist/index.js",
+    "dev": "tsc -b -w --preserveWatchOutput",
+    "test": "yarn run build:all && node --test dist/test/*.test.js",
+    "clean": "tsc -b --clean"
   },
-  "author": "",
+  "author": "Aaron Ault <aultac@gmail.com>",
   "license": "ISC",
-  "devDependencies": {
-    "@types/bluebird": "^3.5.38",
-    "@types/debug": "^4.1.7",
-    "@types/lodash": "^4",
-    "@types/numeral": "^2.0.2",
-    "@yarnpkg/sdks": "^3.0.0-rc.42"
-  },
   "dependencies": {
-    "bluebird": "^3.7.2",
-    "debug": "^4.3.4",
-    "lodash": "^4.17.21",
-    "moment": "^2.29.4",
-    "node-trello": "^1.3.0",
-    "numeral": "^2.0.6"
+    "@aultfarms/trello": "workspace:^",
+    "@aultfarms/trucking": "workspace:^",
+    "@clack/prompts": "^1.7.0",
+    "cli-table3": "^0.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.0.3"
   }
 }

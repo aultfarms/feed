@@ -1,6 +1,5 @@
 import debug from 'debug';
 import { client, gisOAuth2, gconfig } from './core';
-import { delay } from 'bluebird';
 
 const info = debug('af/google#auth:info');
 const trace = debug('af/google#auth:trace');

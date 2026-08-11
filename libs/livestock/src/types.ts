@@ -1,8 +1,72 @@
+export type LivestockListName = 'Dead' | 'Treatments' | 'Incoming' | 'Config';
+
+export type ParseIssueSeverity = 'error' | 'warning';
+
+export type ParseIssueCode =
+  | 'card-missing'
+  | 'invalid-card-format'
+  | 'invalid-date'
+  | 'missing-required-field'
+  | 'invalid-number'
+  | 'invalid-tag'
+  | 'invalid-tag-range'
+  | 'unknown-tag-color'
+  | 'unknown-treatment-code'
+  | 'unknown-property'
+  | 'legacy-date-normalized'
+  | 'legacy-dead-text'
+  | 'legacy-notag-normalized'
+  | 'config-card-missing'
+  | 'invalid-config-json'
+  | 'invalid-config-value'
+  | 'duplicate-death';
+
+export type LivestockCardMetadata = {
+  id: string;
+  idList: string;
+  cardName: string;
+  dateLastActivity: string;
+  trelloUrl?: string;
+  raw: {
+    name: string;
+    description?: string;
+  };
+};
+
+export type ParseIssue = {
+  code: ParseIssueCode;
+  severity: ParseIssueSeverity;
+  message: string;
+  field?: string;
+  expected?: string;
+  suggestion?: string;
+  listName?: LivestockListName;
+  card?: LivestockCardMetadata;
+};
+
+export type ParseSuccess<T> = {
+  ok: true;
+  record: T;
+  issues: ParseIssue[];
+  metadata: LivestockCardMetadata;
+};
+
+export type ParseFailure = {
+  ok: false;
+  issues: ParseIssue[];
+  metadata?: LivestockCardMetadata;
+};
+
+export type ParseResult<T> = ParseSuccess<T> | ParseFailure;
+
 export type ErrorRecord = {
   cardName?: string,
   idList?: string,
   id?: string,
   error: string,
+  code?: ParseIssueCode,
+  issues?: ParseIssue[],
+  dateLastActivity?: string,
 };
 
 export type Tag = {
@@ -24,6 +88,8 @@ export type DeadRecord = {
   idList: string,           // ID of dead list
   cardName: string,         // original card name for debugging
   dateLastActivity: string, // for sorting by "recent"-ness
+  issues?: ParseIssue[],
+  metadata?: LivestockCardMetadata,
 };
 
 export type IncomingRecord = {
@@ -38,6 +104,8 @@ export type IncomingRecord = {
   idList: string,
   cardName: string,
   dateLastActivity: string,
+  issues?: ParseIssue[],
+  metadata?: LivestockCardMetadata,
 };
 
 export type TreatmentRecord = {
@@ -48,26 +116,106 @@ export type TreatmentRecord = {
   idList: string,
   cardName: string,
   dateLastActivity: string,
+  issues?: ParseIssue[],
+  metadata?: LivestockCardMetadata,
 };
 
 export type TagColors = {
   [color: string]: string, // ORANCE: #FF9900
 };
+export type TreatmentType = {
+  code: string;
+  name: string;
+};
+
+export type TreatmentProtocolToken = {
+  code: string;
+  name: string;
+  start: number;
+  end: number;
+};
+
+export type TreatmentProtocolTokenization = {
+  protocol: string;
+  tokens: TreatmentProtocolToken[];
+  unknown: {
+    text: string;
+    start: number;
+    end: number;
+  }[];
+};
+
+export type LivestockListMetadata = {
+  id: string;
+  name: LivestockListName;
+};
+
+export type LivestockListIds = {
+  dead?: string;
+  incoming?: string;
+  treatments?: string;
+  config?: string;
+};
+
+export type LivestockConfig = {
+  tagColors: TagColors;
+  treatmentTypes: TreatmentType[];
+  issues: ParseIssue[];
+  cards: {
+    tagColors?: LivestockCardMetadata;
+    treatmentTypes?: LivestockCardMetadata;
+  };
+};
+
+export type TagGroupIndex = {
+  [tag: string]: IncomingRecord[];
+};
+
+export type IndexedTreatment = {
+  record: TreatmentRecord;
+  tag: Tag;
+  group: IncomingRecord | false;
+};
+
+export type IndexedDeath = {
+  record: DeadRecord;
+  tag: Tag;
+  group: IncomingRecord | false;
+};
+
+export type LivestockIndexes = {
+  groupsByName: {
+    [groupname: string]: IncomingRecord;
+  };
+  groupsByTag: TagGroupIndex;
+  treatmentsByTag: {
+    [tag: string]: IndexedTreatment[];
+  };
+  deathsByTag: {
+    [tag: string]: IndexedDeath[];
+  };
+  unmatchedTreatments: IndexedTreatment[];
+  unmatchedDeaths: IndexedDeath[];
+};
+
+export type LivestockRecordSection<T> = {
+  records: T[];
+  errors: ErrorRecord[];
+  issues?: ParseIssue[];
+  list?: LivestockListMetadata;
+};
 
 export type LivestockRecords = {
-  dead: {
-    records: DeadRecord[],
-    errors: ErrorRecord[],
-  },
-  incoming: {
-    records: IncomingRecord[],
-    errors: ErrorRecord[],
-  },
-  treatments: {
-    records: TreatmentRecord[],
-    errors: ErrorRecord[],
-  },
+  dead: LivestockRecordSection<DeadRecord>,
+  incoming: LivestockRecordSection<IncomingRecord>,
+  treatments: LivestockRecordSection<TreatmentRecord>,
   tagcolors: TagColors,
+  treatmentTypes?: TreatmentType[],
+  config?: LivestockConfig,
+  listIds?: LivestockListIds,
+  lists?: Partial<Record<LivestockListName, LivestockListMetadata>>,
+  issues?: ParseIssue[],
+  indexes?: LivestockIndexes,
 };
 
 

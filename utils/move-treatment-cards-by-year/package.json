@@ -1,25 +1,33 @@
 {
-  "name": "move-treatmentcards-byyear",
+  "name": "@aultfarms/move-livestock-cards",
   "version": "1.0.0",
-  "description": "",
+  "description": "Interactively archive old livestock cards between Trello organizations",
+  "private": true,
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": "dist/index.js",
+  "engines": {
+    "node": ">=20.12"
+  },
   "scripts": {
-    "start": "node dist/index.js",
+    "build:libs": "yarn workspace @aultfarms/trello build && yarn workspace @aultfarms/google build && yarn workspace @aultfarms/livestock build",
     "build": "tsc -b",
-    "dev": "tsc -b -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:all": "yarn run build:libs && yarn run build",
+    "start": "yarn run build:all && node --enable-source-maps dist/index.js",
+    "dev": "tsc -b -w --preserveWatchOutput",
+    "test": "yarn run build:all && node --test dist/test/*.test.js",
+    "clean": "tsc -b --clean"
   },
-  "author": "",
+  "author": "Aaron Ault <aultac@gmail.com>",
   "license": "ISC",
-  "devDependencies": {
-    "@types/debug": "^4",
-    "@yarnpkg/sdks": "^3.0.0-rc.42"
-  },
   "dependencies": {
     "@aultfarms/livestock": "workspace:^",
     "@aultfarms/trello": "workspace:^",
-    "debug": "^4.3.7",
-    "typescript": "^5.7.2"
+    "@clack/prompts": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.0.3"
   }
 }

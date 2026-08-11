@@ -88,8 +88,8 @@ export function grainCardToRecord(c: TrelloCard, l: TrelloList): GrainRecord | E
     matches = rest.match(/^Tkt #([^- ]+) *- *(.*)$/);
     const ticket = matches?.[1]?.trim() || '';
     rest = matches?.[2] || '';
-    matches = rest.match(/^([^.]+)\.(.*)$/);
-    const driver = matches?.[1] || '';
+    matches = rest.match(/^(.+?)(?:\.\s{2,}(.*))?$/);
+    const driver = matches?.[1]?.trim() || '';
     rest = matches?.[2] || '';
     const note = (rest && rest.trim()) || '';
 
