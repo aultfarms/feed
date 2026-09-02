@@ -24,9 +24,9 @@ export async function feedBoard({ client, name, force }: { client: client.Client
 
     // Deliveries:
     const deliveredList = lists.find(l => l.name === feedTrelloConfig.deliveredList);
-    if (!deliveredList|| !deliveredList.cards) throw new Error('ERROR: could not find "'+feedTrelloConfig.deliveredList+'" list in board for feed');
+    if (!deliveredList) throw new Error('ERROR: could not find "'+feedTrelloConfig.deliveredList+'" list in board for feed');
     ret.delivered.idList = deliveredList.id;
-    for (const c of deliveredList.cards) {
+    for (const c of deliveredList.cards ?? []) {
       const r = feedDeliveredCardToRecord(c);
       if ('error' in r && r.error) {
         ret.errors.push(r.error);
@@ -37,9 +37,9 @@ export async function feedBoard({ client, name, force }: { client: client.Client
 
     // Available load numbers:
     const availableList = lists.find(l => l.name === feedTrelloConfig.availableList);
-    if (!availableList || !availableList.cards) throw new Error('ERROR: could not find "'+feedTrelloConfig.availableList +'" list in board for feed');
+    if (!availableList) throw new Error('ERROR: could not find "'+feedTrelloConfig.availableList +'" list in board for feed');
     ret.available.idList = availableList.id;
-    for (const c of availableList.cards) {
+    for (const c of availableList.cards ?? []) {
       ret.available.records.push({ id: c.id, name: c.name });
     }
 

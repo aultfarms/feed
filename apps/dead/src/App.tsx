@@ -13,6 +13,7 @@ import {
   type LivestockRecords,
   type Tag,
 } from '@aultfarms/livestock';
+import { ColorBar, Keypad, TagBar, useTagEntryKeys } from '@aultfarms/livestock-ui';
 import pkg from '../package.json';
 import { context, type DeadView } from './state';
 import { DeadAnalytics, GroupMortality } from './Analytics';
@@ -51,44 +52,25 @@ function selectedTagColor(colorName: string, colors: Record<string, string>): st
   return colors[colorName] || '#444444';
 }
 
-const TagBar = observer(function TagBar() {
+const DraftTagBar = observer(function DraftTagBar() {
   const { state, actions } = React.useContext(context);
   const colors = state.records?.tagcolors || {};
-  const color = selectedTagColor(state.draft.tag.color, colors);
-
   return (
-    <div className="tagbar" style={{ borderColor: state.dirty ? 'red' : '#CCCCCC' }}>
-      <input
-        aria-label="Tag color"
-        className="colortext"
-        style={{ color, borderColor: color }}
-        value={state.draft.tag.color}
-        type="text"
-        onChange={(event) => actions.changeDraft({
-          tag: { ...state.draft.tag, color: event.target.value.toUpperCase() },
-        })}
-      />
-      <input
-        aria-label="Tag number"
-        className="numbertext"
-        value={state.draft.tag.number || ''}
-        type="text"
-        inputMode="numeric"
-        onChange={(event) => actions.changeDraft({
-          tag: {
-            ...state.draft.tag,
-            number: Number(event.target.value.replace(/\D/g, '')) || 0,
-          },
-        })}
-      />
-    </div>
+    <TagBar
+      color={state.draft.tag.color}
+      number={state.draft.tag.number}
+      dirty={state.dirty}
+      resolvedColor={selectedTagColor(state.draft.tag.color, colors)}
+      onColorChange={(color) => actions.changeDraft({ tag: { ...state.draft.tag, color } })}
+      onNumberChange={(number) => actions.changeDraft({ tag: { ...state.draft.tag, number } })}
+    />
   );
 });
 
 const Message = observer(function Message() {
   const { state } = React.useContext(context);
   const message = state.snackbar.text || state.fatalError;
-  const type = state.snackbar.type === 'error' || state.snackbar.type === 'warning' || state.fatalError
+  const type = state.snackbar.type === 'error' || state.fatalError
     ? 'bad'
     : 'good';
   return <div className={`msg msg${type}`}>{message}</div>;
@@ -347,6 +329,7 @@ const History = observer(function History({
 const TagPane = observer(function TagPane() {
   const { state, actions } = React.useContext(context);
   const [loadingView, setLoadingView] = React.useState<DeadView | null>(null);
+  const fullWidthView = state.view === 'groups' || state.view === 'trends' || state.view === 'issues';
   const selectView = React.useCallback((view: DeadView) => {
     if (view === state.view) return;
     setLoadingView(view === 'groups' || view === 'trends' ? view : null);
@@ -354,58 +337,14 @@ const TagPane = observer(function TagPane() {
   }, [actions, state.view]);
   const heavyViewLoaded = React.useCallback(() => setLoadingView(null), []);
   return (
-    <div className="tagpane">
-      <TagBar />
+    <div className={`tagpane ${fullWidthView ? 'tagpane-full' : ''}`}>
+      <DraftTagBar />
       <Message />
       <HistorySelector loadingView={loadingView} onSelect={selectView} />
       <History onHeavyViewLoaded={heavyViewLoaded} />
     </div>
   );
 });
-
-function Keypad({
-  onNumber,
-  onClear,
-  onBackspace,
-}: {
-  onNumber: (number: number) => void;
-  onClear: () => void;
-  onBackspace: () => void;
-}) {
-  const rows: Array<Array<number | { label: string; action: () => void }>> = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-    [
-      { label: 'C', action: onClear },
-      0,
-      { label: '<--', action: onBackspace },
-    ],
-  ];
-
-  return (
-    <div className="keypad">
-      {rows.map((row, rowIndex) => (
-        <div className="keypadrow" key={rowIndex}>
-          {row.map(item => {
-            const label = typeof item === 'number' ? String(item) : item.label;
-            return (
-              <button
-                className="keypadbutton"
-                key={label}
-                type="button"
-                aria-label={label === '<--' ? 'Backspace tag number' : undefined}
-                onClick={() => (typeof item === 'number' ? onNumber(item) : item.action())}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 const RecordInput = observer(function RecordInput() {
   const { state, actions } = React.useContext(context);
@@ -417,67 +356,31 @@ const RecordInput = observer(function RecordInput() {
     && !state.saving,
   );
 
-  React.useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.matches('input, textarea, select, [contenteditable="true"]')) return;
-      if (/^[0-9]$/.test(event.key)) {
-        actions.appendTagDigit(Number(event.key));
-        event.preventDefault();
-        return;
-      }
-      if (event.key === 'Backspace') {
-        actions.backspaceTagNumber();
-        event.preventDefault();
-        return;
-      }
-      const shortcuts: Record<string, string> = {
-        y: 'YELLOW',
-        g: 'GREEN',
-        b: 'BLUE',
-        r: 'RED',
-        p: 'PURPLE',
-        w: 'WHITE',
-        n: 'NOTAG',
-      };
-      const color = shortcuts[event.key.toLowerCase()];
-      if (color) {
-        actions.changeDraft({ tag: { ...state.draft.tag, color } });
-        event.preventDefault();
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [actions, state.draft.tag]);
+  useTagEntryKeys({
+    onDigit: actions.appendTagDigit,
+    onBackspace: actions.backspaceTagNumber,
+    onColor: (color) => actions.changeDraft({
+      tag: {
+        ...state.draft.tag,
+        color,
+        number: color === 'NOTAG' ? (state.draft.tag.number || 1) : state.draft.tag.number,
+      },
+    }),
+  });
 
   return (
     <div className="recordinput">
-      <div className="colorbar">
-        {Object.entries(colors)
-          .filter(([name]) => name !== 'NOTAG')
-          .map(([name, color]) => (
-            <button
-              aria-label={`Select ${name} tag`}
-              className="colorbutton"
-              key={name}
-              title={name}
-              type="button"
-              onClick={() => actions.changeDraft({
-                tag: { ...state.draft.tag, color: name },
-              })}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        <button
-          aria-label="Select untagged animal"
-          className="colorbutton colorbutton-notag"
-          title="NOTAG"
-          type="button"
-          onClick={() => actions.changeDraft({
-            tag: { ...state.draft.tag, color: 'NOTAG', number: state.draft.tag.number || 1 },
-          })}
-        />
-      </div>
+      <ColorBar
+        tagColors={colors}
+        selectedColor={state.draft.tag.color}
+        onSelect={(color) => actions.changeDraft({
+          tag: {
+            ...state.draft.tag,
+            color,
+            number: color === 'NOTAG' ? (state.draft.tag.number || 1) : state.draft.tag.number,
+          },
+        })}
+      />
       <div className="datebar">
         <input
           aria-label="Death date"
@@ -538,11 +441,11 @@ const RecordInput = observer(function RecordInput() {
 
 const LegacyApplication = observer(function LegacyApplication() {
   const { state } = React.useContext(context);
-  const analyticsView = state.view === 'groups' || state.view === 'trends';
+  const showEntry = state.view === 'date' || state.view === 'tag' || state.view === 'prefs';
   return (
-    <div className={`App ${analyticsView ? 'analyticsview' : ''}`}>
+    <div className="App">
       <TagPane />
-      {!analyticsView && <RecordInput />}
+      {showEntry && <RecordInput />}
     </div>
   );
 });

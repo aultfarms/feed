@@ -238,6 +238,27 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@aultfarms/livestock-ui@workspace:^, @aultfarms/livestock-ui@workspace:libs/livestock-ui":
+  version: 0.0.0-use.local
+  resolution: "@aultfarms/livestock-ui@workspace:libs/livestock-ui"
+  dependencies:
+    "@aultfarms/livestock": "workspace:^"
+    "@emotion/react": "npm:^11.11.3"
+    "@emotion/styled": "npm:^11.11.0"
+    "@mui/material": "npm:^5.15.10"
+    "@types/react": "npm:^18.2.56"
+    react: "npm:^18.2.0"
+    react-dom: "npm:^18.2.0"
+    typescript: "npm:^5.2.2"
+  peerDependencies:
+    "@emotion/react": ^11.11.3
+    "@emotion/styled": ^11.11.0
+    "@mui/material": ^5.15.10
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  languageName: unknown
+  linkType: soft
+
 "@aultfarms/livestock@workspace:^, @aultfarms/livestock@workspace:libs/livestock":
   version: 0.0.0-use.local
   resolution: "@aultfarms/livestock@workspace:libs/livestock"
@@ -251,39 +272,6 @@ __metadata:
     "@tsconfig/node16": "npm:^1.0.3"
     "@types/debug": "npm:^4.1.7"
     "@types/deep-equal": "npm:^1.0.1"
-    "@types/node": "npm:^17.0.14"
-    "@yarnpkg/sdks": "npm:^3.0.0-rc.42"
-    concurrently: "npm:^8.0.1"
-    dayjs: "npm:^1.11.9"
-    debug: "npm:^4.3.4"
-    deep-equal: "npm:^2.2.0"
-    live-server: "npm:^1.2.2"
-    p-limit: "npm:^4.0.0"
-    p-reduce: "npm:^3.0.0"
-    rollup: "npm:^3.20.2"
-    rollup-plugin-dts: "npm:^5.3.0"
-    rollup-plugin-pnp-resolve: "npm:^2.0.0"
-    terser: "npm:^5.16.8"
-    ts-node: "npm:^10.9.1"
-    tslib: "npm:^2.5.0"
-    typescript: "npm:^5.0.3"
-  languageName: unknown
-  linkType: soft
-
-"@aultfarms/manure-old@workspace:libs/manure-old":
-  version: 0.0.0-use.local
-  resolution: "@aultfarms/manure-old@workspace:libs/manure-old"
-  dependencies:
-    "@aultfarms/google": "workspace:^"
-    "@aultfarms/trello": "workspace:^"
-    "@overleaf/o-error": "npm:^3.4.0"
-    "@rollup/plugin-commonjs": "npm:^24.0.1"
-    "@rollup/plugin-node-resolve": "npm:^15.0.1"
-    "@rollup/plugin-typescript": "npm:^11.0.0"
-    "@tsconfig/node16": "npm:^1.0.3"
-    "@types/debug": "npm:^4.1.7"
-    "@types/deep-equal": "npm:^1.0.1"
-    "@types/geojson": "npm:^7946.0.14"
     "@types/node": "npm:^17.0.14"
     "@yarnpkg/sdks": "npm:^3.0.0-rc.42"
     concurrently: "npm:^8.0.1"
@@ -328,6 +316,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@aultfarms/move-feed-cards@workspace:utils/move-feed-cards-by-year":
+  version: 0.0.0-use.local
+  resolution: "@aultfarms/move-feed-cards@workspace:utils/move-feed-cards-by-year"
+  dependencies:
+    "@aultfarms/trello": "workspace:^"
+    "@aultfarms/trucking": "workspace:^"
+    "@clack/prompts": "npm:^1.7.0"
+    "@types/node": "npm:^20.12.7"
+    typescript: "npm:^5.0.3"
+  bin:
+    move-feed-cards: dist/index.js
+  languageName: unknown
+  linkType: soft
+
 "@aultfarms/move-livestock-cards@workspace:utils/move-treatment-cards-by-year":
   version: 0.0.0-use.local
   resolution: "@aultfarms/move-livestock-cards@workspace:utils/move-treatment-cards-by-year"
@@ -356,40 +358,6 @@ __metadata:
     typescript: "npm:^5.0.3"
   peerDependencies:
     overmind: "*"
-  languageName: unknown
-  linkType: soft
-
-"@aultfarms/sheetutils@workspace:libs/sheetutils":
-  version: 0.0.0-use.local
-  resolution: "@aultfarms/sheetutils@workspace:libs/sheetutils"
-  dependencies:
-    "@aultfarms/google": "workspace:^"
-    "@aultfarms/trello": "workspace:^"
-    "@overleaf/o-error": "npm:^3.4.0"
-    "@rollup/plugin-commonjs": "npm:^24.0.1"
-    "@rollup/plugin-node-resolve": "npm:^15.0.1"
-    "@rollup/plugin-typescript": "npm:^11.0.0"
-    "@tsconfig/node16": "npm:^1.0.3"
-    "@types/debug": "npm:^4.1.7"
-    "@types/deep-equal": "npm:^1.0.1"
-    "@types/node": "npm:^17.0.14"
-    "@types/numeral": "npm:^2.0.2"
-    "@yarnpkg/sdks": "npm:^3.0.0-rc.42"
-    concurrently: "npm:^8.0.1"
-    dayjs: "npm:^1.11.9"
-    debug: "npm:^4.3.4"
-    deep-equal: "npm:^2.2.0"
-    live-server: "npm:^1.2.2"
-    numeral: "npm:^2.0.6"
-    p-limit: "npm:^4.0.0"
-    p-reduce: "npm:^3.0.0"
-    rollup: "npm:^3.20.2"
-    rollup-plugin-dts: "npm:^5.3.0"
-    rollup-plugin-pnp-resolve: "npm:^2.0.0"
-    terser: "npm:^5.16.8"
-    ts-node: "npm:^10.9.1"
-    tslib: "npm:^2.5.0"
-    typescript: "npm:^5.0.3"
   languageName: unknown
   linkType: soft
 
@@ -12891,6 +12859,7 @@ __metadata:
   resolution: "dead@workspace:apps/dead"
   dependencies:
     "@aultfarms/livestock": "workspace:^"
+    "@aultfarms/livestock-ui": "workspace:^"
     "@aultfarms/trello": "workspace:^"
     "@emotion/react": "npm:^11.11.3"
     "@emotion/styled": "npm:^11.11.0"
@@ -25301,6 +25270,7 @@ __metadata:
   dependencies:
     "@aultfarms/debug-console": "workspace:^"
     "@aultfarms/livestock": "workspace:^"
+    "@aultfarms/livestock-ui": "workspace:^"
     "@aultfarms/trello": "workspace:^"
     "@emotion/react": "npm:^11.11.3"
     "@emotion/styled": "npm:^11.11.0"

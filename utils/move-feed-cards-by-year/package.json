@@ -1,0 +1,33 @@
+{
+  "name": "@aultfarms/move-feed-cards",
+  "version": "1.0.0",
+  "description": "Interactively archive old Feed cards between Trello organizations",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": "dist/index.js",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "build:libs": "yarn workspace @aultfarms/trello build && yarn workspace @aultfarms/google build && yarn workspace @aultfarms/trucking build",
+    "build": "tsc -b",
+    "build:all": "yarn run build:libs && yarn run build",
+    "start": "yarn run build:all && node --enable-source-maps dist/index.js",
+    "dev": "tsc -b -w --preserveWatchOutput",
+    "test": "yarn run build:all && node --test dist/test/*.test.js",
+    "clean": "tsc -b --clean"
+  },
+  "author": "Aaron Ault <aultac@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@aultfarms/trello": "workspace:^",
+    "@aultfarms/trucking": "workspace:^",
+    "@clack/prompts": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.0.3"
+  }
+}

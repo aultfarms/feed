@@ -1,0 +1,228 @@
+.tagbar {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  border-radius: 3px;
+  border: 2px solid #DDDDDD;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.colortext {
+  text-align: center;
+  border-radius: 5px;
+  border-width: 5px;
+  border-style: solid;
+  font-weight: bold;
+  text-shadow: 1px 1px rgba(0, 0, 0, .3);
+  font-size: 1.5em;
+  width: 50%;
+  min-width: 0;
+}
+
+.numbertext {
+  text-align: center;
+  border-radius: 5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: white;
+  font-weight: bold;
+  font-size: 1.5em;
+  width: 50%;
+  min-width: 0;
+}
+
+.colorbar {
+  display: flex;
+  min-height: 2.5em;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.colorbutton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1px;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid #CCCCCC;
+  box-shadow: 1px 1px grey;
+  width: calc(4em - 5px);
+  height: calc(4em - 5px);
+}
+
+.colorbutton-notag {
+  background: repeating-linear-gradient(135deg, #FFFFFF 0 6px, #999999 6px 12px);
+}
+
+.colorbutton:hover,
+.keypadbutton:hover,
+.issuebutton:not(:disabled):hover {
+  cursor: pointer;
+}
+
+.keypad {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.keypadrow {
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.keypadbutton {
+  flex-grow: 1;
+  flex-shrink: 0;
+  min-width: 33%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #CCCCCC;
+  border-radius: 2px;
+  font-family: sans-serif;
+  font-size: 2em;
+  color: #444444;
+  background: linear-gradient(#FFFFFF, #EEEEEE);
+}
+
+.keypadbutton:active {
+  background: linear-gradient(#EEEEEE, #FFFFFF);
+}
+
+.issuesview {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.issuesheader,
+.issuecardheader,
+.issueactions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.issuelist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.issuecard {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 6px;
+  border: 2px solid #D32F2F;
+  border-radius: 3px;
+  background: #FFFFFF;
+  box-shadow: 2px 2px 1px #999999;
+}
+
+.issuelistname,
+.issuecode {
+  padding: 2px 5px;
+  border: 1px solid #CCCCCC;
+  border-radius: 3px;
+  font-size: .8em;
+  font-weight: bold;
+}
+
+.issuecode {
+  color: #FFFFFF;
+  background: #D32F2F;
+  overflow-wrap: anywhere;
+}
+
+.issuecardname {
+  overflow-wrap: anywhere;
+}
+
+.issuedetails {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+.issuedetails li + li {
+  margin-top: 4px;
+}
+
+.issueeditorlabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: .85em;
+  font-weight: bold;
+}
+
+.issueeditor {
+  width: 100%;
+  min-height: 3.5em;
+  resize: vertical;
+  border: 1px solid #888888;
+  border-radius: 3px;
+  padding: 5px;
+  font: inherit;
+  user-select: text;
+}
+
+.issueeditorconfig {
+  min-height: 9em;
+  font-family: monospace;
+}
+
+.issuevalidation,
+.issueactivity {
+  font-size: .8em;
+  color: #666666;
+}
+
+.issuevalidationgood {
+  color: green;
+  font-weight: bold;
+}
+
+.issuevalidationbad {
+  color: #B00020;
+  font-weight: bold;
+}
+
+.issueactions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.issuebutton {
+  border: 1px solid #888888;
+  border-radius: 3px;
+  padding: 5px 8px;
+  color: #222222;
+  background: linear-gradient(#FFFFFF, #EEEEEE);
+  font-weight: bold;
+}
+
+.issuebuttonprimary {
+  color: #FFFFFF;
+  border-color: #1976D2;
+  background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
+}
+
+.issuebutton:disabled {
+  color: #888888;
+  border-color: #CCCCCC;
+  background: #EEEEEE;
+}

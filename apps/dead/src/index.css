@@ -17,7 +17,9 @@ body,
     env(safe-area-inset-right)
     env(safe-area-inset-bottom)
     env(safe-area-inset-left);
-  background: #B71C1C;
+  background:
+    linear-gradient(#B71C1C, #B71C1C) top / 100% env(safe-area-inset-top) no-repeat,
+    #FFFFFF;
 }
 
 @supports (height: 100dvh) {

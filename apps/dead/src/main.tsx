@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { App } from './App';
 import { ErrorBoundary } from './ErrorBoundary';
 import { context, state, actions } from './state';
-import { initialize } from './state/initialize';
+import '@aultfarms/livestock-ui/livestock-ui.css';
 import './index.css';
 
 const theme = createTheme({
@@ -30,5 +30,3 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     </ErrorBoundary>
   </React.StrictMode>,
 );
-
-void initialize(state, actions);

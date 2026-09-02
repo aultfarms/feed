@@ -1,13 +1,21 @@
-import { makeAutoObservable } from 'mobx';
+import { observable } from 'mobx';
 import type {
   AnalyticsFilters,
+  ConfigKind,
   DuplicateDeath,
   LivestockRecords,
-  ParseIssue,
+  RecordKind,
   Tag,
 } from '@aultfarms/livestock';
 
-export type DeadView = 'prefs' | 'date' | 'tag' | 'groups' | 'trends' | 'issues';
+export type HistoryView = 'prefs' | 'date' | 'tag' | 'groups' | 'trends' | 'issues';
+export type DeadView = HistoryView;
+
+export type ActivityMessage = {
+  id: number;
+  type: 'good' | 'bad';
+  text: string;
+};
 
 export type DeathDraft = {
   date: string;
@@ -15,57 +23,66 @@ export type DeathDraft = {
   note: string;
 };
 
-export type Activity = {
-  id: number;
-  type: 'success' | 'info' | 'warning' | 'error';
-  text: string;
-  at: Date;
-};
-
-export type RepairUndo = {
-  issue: ParseIssue;
+export type LastRepair = {
+  kind: RecordKind | ConfigKind;
   field: 'name' | 'desc';
-  oldValue: string;
-  newValue: string;
+  cardId: string;
+  idList: string;
+  previousValue: string;
+  currentValue: string;
+  dateLastActivity: string;
 };
 
 export type PendingDuplicate = DuplicateDeath & {
   requestedDate: string;
 };
 
-export function today(): string {
+export type AppState = {
+  loading: boolean;
+  saving: boolean;
+  repairing: boolean;
+  trelloAuthorized: boolean;
+  fatalError: string;
+  records: LivestockRecords | null;
+  draft: DeathDraft;
+  dirty: boolean;
+  view: HistoryView;
+  filters: AnalyticsFilters;
+  pendingDuplicate: PendingDuplicate | null;
+  snackbar: {
+    open: boolean;
+    type: 'success' | 'error';
+    text: string;
+  };
+  activityLog: ActivityMessage[];
+  lastRepair: LastRepair | null;
+};
+
+function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export class DeadState {
-  loading = true;
-  saving = false;
-  repairing = false;
-  trelloAuthorized = false;
-  records: LivestockRecords | null = null;
-  fatalError = '';
-  dirty = false;
-  view: DeadView = 'date';
-  draft: DeathDraft = {
+export const state = observable<AppState>({
+  loading: true,
+  saving: false,
+  repairing: false,
+  trelloAuthorized: false,
+  fatalError: '',
+  records: null,
+  draft: {
     date: today(),
     tag: { color: '', number: 0 },
     note: '',
-  };
-  filters: AnalyticsFilters = {};
-  pendingDuplicate: PendingDuplicate | null = null;
-  snackbar: Activity & { open: boolean } = {
-    id: 0,
-    type: 'info',
-    text: '',
-    at: new Date(0),
+  },
+  dirty: false,
+  view: 'date',
+  filters: {},
+  pendingDuplicate: null,
+  snackbar: {
     open: false,
-  };
-  activity: Activity[] = [];
-  lastRepair: RepairUndo | null = null;
-
-  constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
-  }
-}
-
-export const state = new DeadState();
+    type: 'success',
+    text: '',
+  },
+  activityLog: [],
+  lastRepair: null,
+});

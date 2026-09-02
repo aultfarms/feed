@@ -1,6 +1,6 @@
 {
   "name": "treatments",
-  "homepage": "/treatments",
+  "homepage": "https://aultfarms.github.io/treatments/",
   "version": "2.0.3",
   "private": true,
   "type": "module",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@aultfarms/debug-console": "workspace:^",
     "@aultfarms/livestock": "workspace:^",
+    "@aultfarms/livestock-ui": "workspace:^",
     "@aultfarms/trello": "workspace:^",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",

@@ -164,8 +164,16 @@ export const GroupOutcomes = observer(function GroupOutcomes() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {groups.map(group => (
-            <TableRow key={group.group.groupname}>
+          {groups.map(group => {
+            const rowClass = !group.observedMortality.available
+              ? 'group-row-neutral'
+              : group.observedMortality.value < 0.05
+                ? 'group-row-good'
+                : group.observedMortality.value < 0.1
+                  ? 'group-row-neutral'
+                  : 'group-row-bad';
+            return (
+            <TableRow className={rowClass} key={group.group.groupname}>
               <TableCell>{group.group.groupname}</TableCell>
               <TableCell
                 align="right"
@@ -188,7 +196,8 @@ export const GroupOutcomes = observer(function GroupOutcomes() {
                 {countWithPercent(group.curedHead, group.cureRate)}
               </TableCell>
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
